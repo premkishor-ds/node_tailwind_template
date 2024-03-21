@@ -1,20 +1,27 @@
 const mongoose = require('mongoose');
 
-const productSchema = new mongoose.Schema({
-  name: {
+const translationSchema = new mongoose.Schema({
+  language: {
     type: String,
     required: true
   },
+  content: {
+    type: String,
+    required: true
+  }
+});
+
+const productSchema = new mongoose.Schema({
+  name: [translationSchema],
   price: {
     type: Number,
     required: true
   },
-  description: String,
-  category: String,
-  locale: String
+  description: [translationSchema],
+  category: [translationSchema]
 });
 
 // Create text index on name and description fields for text search
-productSchema.index({ name: 'text', description: 'text' });
+productSchema.index({ 'name.content': 'text', 'description.content': 'text' });
 
 module.exports = mongoose.model('Product', productSchema);

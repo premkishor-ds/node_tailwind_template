@@ -1,14 +1,18 @@
-// controllers/productController.js
-
 const Product = require('../models/ProductModel');
 
 // Get all products with options for pagination, sorting, and filtering
+
 exports.getAllProducts = async (req, res) => {
   try {
-    const { limit = 10, offset = 0, input, sortBy = 'name', sortOrder = 'asc', locale, ...filters } = req.query;
+    const { limit = 10, offset = 0, input, sortBy = 'name', sortOrder = 'asc', locale, language, category } = req.query;
 
-    // Construct query based on locale and other filters
-    const query = locale ? { ...filters, locale } : filters;
+    // Construct query based on locale, language, and other filters
+    const query = {};
+    if (locale) query.locale = locale;
+    if (language) query['name.language'] = language;
+    if (language) query['description.language'] = language;
+    if (language) query['category.language'] = language;
+    if (category) query['category.content'] = category;
 
     // Construct search query
     let searchQuery = {};
@@ -28,10 +32,20 @@ exports.getAllProducts = async (req, res) => {
       .skip(parseInt(offset))
       .sort({ [sortBy]: sortOrder });
 
-    // Construct response object including total count
+    // Process products to flatten translation objects based on the language
+    const formattedProducts = products.map(product => ({
+      _id: product._id,
+      name: product.name.find(translation => translation.language === language).content,
+      price: product.price,
+      description: product.description.find(translation => translation.language === language).content,
+      category: product.category.find(translation => translation.language === language).content
+    }));
+
+    // Construct response object including total count and formatted products
     const response = {
       totalCount,
-      products
+      language,
+      products: formattedProducts
     };
 
     res.json(response);
@@ -40,10 +54,13 @@ exports.getAllProducts = async (req, res) => {
   }
 };
 
+
+
+
 // Create a new product
 exports.createProduct = async (req, res) => {
-  const product = new Product(req.body);
   try {
+    const product = new Product(req.body);
     const newProduct = await product.save();
     res.status(201).json(newProduct);
   } catch (err) {
@@ -54,11 +71,20 @@ exports.createProduct = async (req, res) => {
 // Update a product
 exports.updateProduct = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
+    const { id } = req.params;
+    const product = await Product.findById(id);
     if (!product) {
       return res.status(404).json({ message: 'Product not found' });
     }
-    Object.assign(product, req.body);
+
+    // Ensure that only allowed fields are updated
+    const allowedFields = ['name', 'price', 'description', 'category'];
+    allowedFields.forEach(field => {
+      if (req.body[field] !== undefined) {
+        product[field] = req.body[field];
+      }
+    });
+
     const updatedProduct = await product.save();
     res.json(updatedProduct);
   } catch (err) {
