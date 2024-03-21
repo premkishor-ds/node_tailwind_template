@@ -13,6 +13,13 @@ http://localhost:5000/api/products?limit=10&offset=0&sortBy=price&sortOrder=desc
 http://localhost:5000/api/products?limit=10&offset=0&input=product&sortBy=price&sortOrder=desc
 
 
+git product language wise modified
+http://localhost:5000/api/products?language=en&sortBy=name&sortOrder=desc
+
+get raw product list
+localhost:5000/api/products
+
+
 # Set up
 
 Clone the repo or download it.

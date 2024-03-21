@@ -9,9 +9,6 @@ exports.getAllProducts = async (req, res) => {
     // Construct query based on locale, language, and other filters
     const query = {};
     if (locale) query.locale = locale;
-    if (language) query['name.language'] = language;
-    if (language) query['description.language'] = language;
-    if (language) query['category.language'] = language;
     if (category) query['category.content'] = category;
 
     // Construct search query
@@ -27,25 +24,28 @@ exports.getAllProducts = async (req, res) => {
     const totalCount = await Product.countDocuments(combinedQuery);
 
     // Fetch paginated product list
-    const products = await Product.find(combinedQuery)
+    let products = await Product.find(combinedQuery)
       .limit(parseInt(limit))
       .skip(parseInt(offset))
       .sort({ [sortBy]: sortOrder });
 
-    // Process products to flatten translation objects based on the language
-    const formattedProducts = products.map(product => ({
-      _id: product._id,
-      name: product.name.find(translation => translation.language === language).content,
-      price: product.price,
-      description: product.description.find(translation => translation.language === language).content,
-      category: product.category.find(translation => translation.language === language).content
-    }));
+    // Check if language parameter is provided
+    if (language) {
+      // Format products based on the specified language
+      products = products.map(product => ({
+        _id: product._id,
+        name: product.name.find(translation => translation.language === language).content,
+        price: product.price,
+        description: product.description.find(translation => translation.language === language).content,
+        category: product.category.find(translation => translation.language === language).content
+      }));
+    }
 
-    // Construct response object including total count and formatted products
+    // Construct response object including total count and products
     const response = {
       totalCount,
       language,
-      products: formattedProducts
+      products
     };
 
     res.json(response);
@@ -53,6 +53,9 @@ exports.getAllProducts = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+
+
 
 
 
