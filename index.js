@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const favicon = require('serve-favicon');
 const path = require('path');
+const productRoutes = require('./routes/productRoutes');
 
 dotenv.config();
 const app = express();
@@ -23,6 +24,9 @@ app.use(express.static('public'));
 
 // Use serve-favicon middleware to serve favicon.ico
 app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+
+// Use product routes
+app.use('/api', productRoutes);
 
 app.get('/', (_req, res) => {
   res.render('index');

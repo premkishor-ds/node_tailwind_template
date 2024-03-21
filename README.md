@@ -4,6 +4,15 @@ MONGODB_URI = mongodb+srv://username:password@cluster0.ka4qusr.mongodb.net/?retr
 
 
 
+Below are the some of the sample api where we can perform tests
+
+http://localhost:5000/api/products?limit=10&offset=0&category=electronics
+http://localhost:5000/api/products?limit=10&offset=0&sortBy=name&sortOrder=asc
+http://localhost:5000/api/products?limit=10&offset=0&sortBy=category&sortOrder=desc
+http://localhost:5000/api/products?limit=10&offset=0&sortBy=price&sortOrder=desc
+http://localhost:5000/api/products?limit=10&offset=0&input=product&sortBy=price&sortOrder=desc
+
+
 # Set up
 
 Clone the repo or download it.
@@ -30,3 +39,8 @@ And run your server running the following command in the root of the project in 
 ```sh
 $ npm run dev
 ```
+
+
+i want to add search functionality in which i want input parameter which accept input value and give reseaponse according to input
+
+http://localhost:5000/api/products?limit=10&offset=0&input=product 1&sortBy=price&sortOrder=desc
